@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- kredit-maliki: Template oleh Maliki Saputra (@malikisaputra) — https://malikisaputra.biz.id. Lisensi Nonkomersial Maliki Studio: wajib kredit, dilarang dijual (lihat LICENSE). -->
 <html lang="id">
 <head>
 <meta charset="utf-8">
@@ -7,7 +6,7 @@
 <title>Demo Presensi GPS + Selfie</title>
 <!-- Demo statis: meniru tampilan index.html & admin.html dengan data contoh. Tidak terhubung ke server. -->
 <style>
-  :root{--navy:#0b1f3a;--navy-2:#132c50;--lime:#c6f432;--merah:#ff5d5d;--teks:#e9eef7;--redup:#9fb0c9;--kartu:#10284a;--garis:#1f3c66}
+  :root{--navy:#0b1f3a;--navy-2:#132c50;--lime:#c6f432;--primary-red:#BA1D23;--primary-green:#32B23E;--merah:#ff5d5d;--teks:#e9eef7;--redup:#9fb0c9;--kartu:#10284a;--garis:#1f3c66}
   *{box-sizing:border-box}
   body{margin:0;min-height:100vh;background:#06142a;color:var(--teks);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;align-items:center;justify-content:center;gap:28px;padding:24px;flex-wrap:wrap;
     background-image:radial-gradient(circle at 15% 20%,rgba(198,244,50,.08),transparent 40%),radial-gradient(circle at 85% 80%,rgba(59,130,246,.12),transparent 45%)}
@@ -15,35 +14,35 @@
   .hp-isi{padding:16px 14px;height:100%;overflow:hidden}
   .atas{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
   .logo{display:flex;align-items:center;gap:9px;font-weight:800}
-  .logo i{width:30px;height:30px;border-radius:9px;background:var(--lime);display:grid;place-items:center;color:var(--navy);font-style:normal;font-weight:900}
+  .logo i{width:30px;height:30px;border-radius:9px;background:var(--primary-red);display:grid;place-items:center;color:#fff;font-style:normal;font-weight:900}
   .jam{text-align:right}.jam b{display:block;font-size:19px;font-variant-numeric:tabular-nums}.jam small{color:var(--redup);font-size:11.5px}
   .kartu{background:var(--kartu);border:1px solid var(--garis);border-radius:16px;padding:12px;margin-bottom:10px}
   .salam{display:flex;justify-content:space-between}.salam h2{margin:0;font-size:16px}.redup{color:var(--redup)}.kecil{font-size:12px}
-  .tautan{color:var(--lime);font-weight:700;font-size:12.5px}
+  .tautan{color:var(--primary-green);font-weight:700;font-size:12.5px}
   .status-hari{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
   .status-hari div{background:var(--navy);border-radius:10px;padding:7px 10px}.status-hari small{color:var(--redup);font-size:11px}.status-hari b{display:block;font-size:14px}
   .peta{height:128px;border-radius:12px;overflow:hidden}
   .lokasi{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-  .lencana{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--navy);color:var(--lime)}
-  .lencana::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lime)}
+  .lencana{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--navy);color:var(--primary-green)}
+  .lencana::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--primary-green)}
   .kamera{height:150px;border-radius:12px;overflow:hidden;position:relative}
   .kamera .stempel{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);font-size:11px;padding:4px 8px}
   .baris{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .tombol{padding:12px;border-radius:12px;font-weight:800;text-align:center;background:var(--lime);color:var(--navy)}
+  .tombol{padding:12px;border-radius:12px;font-weight:800;text-align:center;background:var(--primary-red);color:#ffffff}
   .tombol.mati{opacity:.4}
   .tombol.garis{background:transparent;color:var(--teks);border:1px solid var(--garis);padding:9px;font-size:13px}
   /* admin */
   .admin{width:720px;max-width:100%;background:#f3f5f9;color:#0f1b2d;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
-  .admin header{background:var(--navy);color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
-  .admin header .logo i{width:28px;height:28px}
+  .admin header{background:var(--primary-green);color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
+  .admin header .logo i{width:28px;height:28px;background:#fff;color:var(--primary-green)}
   .admin main{padding:16px 18px}
   .alat{display:flex;gap:8px;align-items:center;margin-bottom:12px}
   .seg{display:inline-flex;background:#fff;border:1px solid #e1e6ee;border-radius:9px;padding:3px}
-  .seg span{padding:5px 12px;border-radius:7px;font-weight:700;color:#5b6b82;font-size:13px}.seg span.on{background:var(--navy);color:#fff}
+  .seg span{padding:5px 12px;border-radius:7px;font-weight:700;color:#5b6b82;font-size:13px}.seg span.on{background:var(--primary-green);color:#fff}
   .inp,.btn{background:#fff;border:1px solid #e1e6ee;border-radius:9px;padding:6px 11px;font-size:13px;font-weight:600}
   .angka{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
   .angka div{background:#fff;border:1px solid #e1e6ee;border-radius:12px;padding:10px 12px}.angka small{color:#5b6b82;font-weight:600;font-size:12px}.angka b{display:block;font-size:22px}
-  .angka div:first-child{background:var(--navy);color:#fff;border-color:var(--navy)}.angka div:first-child small{color:var(--lime)}
+  .angka div:first-child{background:var(--primary-green);color:#fff;border-color:var(--primary-green)}.angka div:first-child small{color:#e6f9e8;font-weight:700}
   table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e1e6ee;border-radius:12px;overflow:hidden;font-size:13px}
   th,td{padding:8px 11px;text-align:left;border-bottom:1px solid #e1e6ee}
   th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#5b6b82;background:#fafbfd}
@@ -58,7 +57,7 @@
 <span class="label-demo">DEMO · data contoh</span>
 
 <div class="hp"><div class="hp-isi">
-  <div class="atas"><div class="logo"><img class="logo-img" src="img/logo-instansi.svg" alt="Logo" hidden onload="this.hidden=false;this.nextElementSibling.style.display='none'" onerror="this.remove()"><i>P</i>Kantor Pusat</div><div class="jam"><b id="jam">07:56:12</b><small>Kamis, 5 November</small></div></div>
+  <div class="atas"><div class="logo"><img class="logo-img" src="img/logoAja.png" alt="Logo" hidden onload="this.hidden=false;this.nextElementSibling.style.display='none'" onerror="this.remove()"><i>P</i>Kantor Pusat</div><div class="jam"><b id="jam">07:56:12</b><small>Kamis, 5 November</small></div></div>
   <div class="kartu">
     <div class="salam"><div><h2>Budi Santoso</h2><span class="redup kecil">Staf Gudang · K001</span></div><span class="tautan">Ganti akun</span></div>
     <div class="status-hari"><div><small>Masuk</small><b>Belum</b></div><div><small>Pulang</small><b>Belum</b></div></div>
@@ -98,7 +97,7 @@
 </div></div>
 
 <div class="admin">
-  <header><div class="logo"><img class="logo-img" src="img/logo-instansi.svg" alt="Logo" hidden onload="this.hidden=false;this.nextElementSibling.style.display='none'" onerror="this.remove()"><i>P</i>Admin Presensi</div><span class="btn" style="color:#0f1b2d">Keluar</span></header>
+  <header><div class="logo"><img class="logo-img" src="img/logoAja.png" alt="Logo" hidden onload="this.hidden=false;this.nextElementSibling.style.display='none'" onerror="this.remove()"><i>P</i>Admin Presensi</div><span class="btn" style="color:#0f1b2d">Keluar</span></header>
   <main>
     <div class="alat"><div class="seg"><span class="on">Harian</span><span>Bulanan</span></div><span class="inp">05/11/2026</span><span style="flex:1"></span><span class="btn">Ekspor CSV</span><span class="btn">Cetak</span></div>
     <div class="angka"><div><small>Hadir</small><b>6/8</b></div><div><small>Tepat waktu</small><b>4</b></div><div><small>Telat</small><b>2</b></div><div><small>Belum hadir</small><b>2</b></div></div>
@@ -127,6 +126,5 @@
     return '<tr><td>' + r[0] + '</td><td><b>' + r[1] + '</b><br><span style="color:#5b6b82;font-size:12px">' + r[2] + '</span></td><td>' + (r[3] || '-') + '</td><td>' + (r[4] || '-') + '</td><td><span class="st ' + k + '">' + r[5] + '</span></td><td>' + (r[6] ? r[6] + ' mnt' : '-') + '</td><td>' + (r[7] !== '' ? r[7] + ' m' : '-') + '</td><td>' + foto + '</td></tr>';
   }).join('');
 </script>
-  <p class="kredit-maliki" style="margin:24px auto 16px;padding:0 16px;text-align:center;font:12px/1.5 system-ui,sans-serif;opacity:.7">Template oleh <a href="https://malikisaputra.biz.id" target="_blank" rel="noopener" style="color:inherit">@malikisaputra</a></p>
 </body>
 </html>

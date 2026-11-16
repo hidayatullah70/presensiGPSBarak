@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- kredit-maliki: Template oleh Maliki Saputra (@malikisaputra) — https://malikisaputra.biz.id. Lisensi Nonkomersial Maliki Studio: wajib kredit, dilarang dijual (lihat LICENSE). -->
 <html lang="id">
 <head>
 <base target="_top">
@@ -7,31 +6,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Admin Presensi</title>
 <style>
-  :root{--navy:#0b1f3a;--lime:#c6f432;--latar:#f3f5f9;--kartu:#fff;--teks:#0f1b2d;--redup:#5b6b82;--garis:#e1e6ee;--merah:#d93a3a;--kuning:#b7791f;--hijau:#2f855a}
+  :root{--navy:#0b1f3a;--primary-green:#32B23E;--primary-red:#BA1D23;--lime:#c6f432;--latar:#f3f5f9;--kartu:#fff;--teks:#0f1b2d;--redup:#5b6b82;--garis:#e1e6ee;--merah:#d93a3a;--kuning:#b7791f;--hijau:#2f855a}
   *{box-sizing:border-box}
   body{margin:0;background:var(--latar);color:var(--teks);font:14.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   button,input{font:inherit}
   [hidden]{display:none!important}
-  header{background:var(--navy);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  header{background:var(--primary-green);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  header .tombol{background:#fff;color:var(--primary-green);border-color:#fff}
   .logo{display:flex;align-items:center;gap:10px;font-weight:800}
-  .logo i{width:32px;height:32px;border-radius:9px;background:var(--lime);display:grid;place-items:center;color:var(--navy);font-style:normal;font-weight:900}
+  .logo i{width:32px;height:32px;border-radius:9px;background:#fff;display:grid;place-items:center;color:var(--primary-green);font-style:normal;font-weight:900}
   main{max-width:1100px;margin:0 auto;padding:20px}
   .kartu{background:var(--kartu);border:1px solid var(--garis);border-radius:16px;padding:18px}
   .masuk{max-width:380px;margin:40px auto}
   input{padding:10px 12px;border:1px solid var(--garis);border-radius:10px;background:#fff;color:var(--teks)}
+  input:focus{outline:2px solid var(--primary-green);border-color:transparent}
   .tombol{padding:10px 16px;border-radius:10px;border:1px solid var(--garis);background:#fff;font-weight:700;cursor:pointer;color:var(--teks)}
-  .tombol.utama{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .tombol.utama{background:var(--primary-green);color:#fff;border-color:var(--primary-green);font-weight:800}
   .alat{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
   .segmen{display:inline-flex;background:#fff;border:1px solid var(--garis);border-radius:10px;padding:3px}
   .segmen button{border:0;background:none;padding:7px 14px;border-radius:8px;font-weight:700;cursor:pointer;color:var(--redup)}
-  .segmen button.aktif{background:var(--navy);color:#fff}
+  .segmen button.aktif{background:var(--primary-green);color:#fff}
   .ruang{flex:1}
   .angka{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
   .angka div{background:#fff;border:1px solid var(--garis);border-radius:14px;padding:14px 16px}
   .angka small{color:var(--redup);font-weight:600}
   .angka b{display:block;font-size:26px}
-  .angka div:first-child{background:var(--navy);color:#fff;border-color:var(--navy)}
-  .angka div:first-child small{color:var(--lime)}
+  .angka div:first-child{background:var(--primary-green);color:#fff;border-color:var(--primary-green)}
+  .angka div:first-child small{color:#e6f9e8;font-weight:700}
   .bungkus{background:#fff;border:1px solid var(--garis);border-radius:16px;overflow:auto}
   table{width:100%;border-collapse:collapse;min-width:640px}
   th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--garis)}
@@ -118,6 +119,5 @@
   };
 })();
 </script>
-  <p class="kredit-maliki" style="margin:24px auto 16px;padding:0 16px;text-align:center;font:12px/1.5 system-ui,sans-serif;opacity:.7">Template oleh <a href="https://malikisaputra.biz.id" target="_blank" rel="noopener" style="color:inherit">@malikisaputra</a></p>
 </body>
 </html>

@@ -1,6 +1,5 @@
 /**
  * Presensi GPS + Selfie — Google Apps Script
- * Maliki Studio (malikisaputra.biz.id) · Lisensi Nonkomersial Maliki Studio
  *
  * Langkah singkat: jalankan setup() sekali, isi sheet "Pengaturan" & "Karyawan",
  * lalu Deploy → New deployment → Web app. Detail ada di README.md.
@@ -14,8 +13,8 @@ var KOLOM_PRESENSI = ['Waktu', 'Tanggal', 'ID', 'Nama', 'Jenis', 'Status', 'Tela
 // ===================== Logo instansi =====================
 // Satu-satunya tempat mengatur logo. Isi URL gambar publik (https://...png/svg)
 // atau link berbagi Google Drive ("Siapa saja yang memiliki link"). Kosong = pakai inisial.
-var LOGO_URL = '';
-var LOGO_INISIAL = 'P';
+var LOGO_URL = 'https://drive.google.com/file/d/1H-KY6KBBmepZRqYI-MRWqpP7_Mi9_XxR/view?usp=sharing';
+var LOGO_INISIAL = 'B';
 
 function logoUrl_() {
   var u = String(LOGO_URL || '').trim();

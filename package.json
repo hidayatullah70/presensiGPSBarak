@@ -1,0 +1,32 @@
+{
+  "name": "presensi-gps",
+  "version": "1.0.0",
+  "description": "Aplikasi absensi karyawan yang jalan di Google Apps Script. Karyawan buka link dari HP, ambil selfie, lalu tekan **Absen Masuk** atau **Absen Pulang**. Server mengecek apakah posisinya masih dalam radius kantor, mencatat jam ke Google Sheets, dan menyimpan fotonya ke Google Drive.",
+  "main": "index.js",
+  "scripts": {
+    "cap": "cap",
+    "sync": "cap sync android",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/malikisaputra-source/presensi-gps-gas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/malikisaputra-source/presensi-gps-gas/issues"
+  },
+  "homepage": "https://github.com/malikisaputra-source/presensi-gps-gas#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.2",
+    "typescript": "^7.0.2"
+  }
+}
