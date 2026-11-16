@@ -54,6 +54,12 @@ function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   if (!ss) throw new Error('Buka skrip ini dari Google Sheet (Ekstensi → Apps Script).');
 
+  var sCheck = ss.getSheetByName(SHEET_PENGATURAN);
+  if (sCheck && sCheck.getLastRow() > 1) {
+    tryAlert_('Setup sudah pernah dijalankan sebelumnya.');
+    return;
+  }
+
   var k = ss.getSheetByName(SHEET_KARYAWAN) || ss.insertSheet(SHEET_KARYAWAN);
   if (k.getLastRow() === 0) {
     k.appendRow(['ID', 'Nama', 'Jabatan', 'PIN', 'Aktif']);
@@ -159,15 +165,36 @@ function getInfo() {
 }
 
 function cariKaryawan_(id, pin) {
+  var idBersih = String(id || '').trim().toUpperCase();
+  var pinBersih = String(pin || '').trim();
+  if (!idBersih || !pinBersih) return { error: 'ID karyawan atau PIN salah.' };
+
+  // Proteksi Brute-Force (Rate Limiting via CacheService: 5x gagal = kunci 15 menit)
+  var cache = CacheService.getScriptCache();
+  var kunciGagal = 'brute_' + idBersih;
+  var jumlahGagal = Number(cache.get(kunciGagal) || 0);
+
+  if (jumlahGagal >= 5) {
+    return { error: 'Akun dikunci sementara karena 5 kali salah PIN. Silakan coba lagi dalam 15 menit.' };
+  }
+
   var v = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_KARYAWAN).getDataRange().getDisplayValues();
   for (var i = 1; i < v.length; i++) {
-    if (String(v[i][0]).trim().toUpperCase() === String(id).trim().toUpperCase()) {
+    if (String(v[i][0]).trim().toUpperCase() === idBersih) {
       if (String(v[i][4]).toLowerCase() === 'tidak') return { error: 'Akun nonaktif. Hubungi admin.' };
-      if (String(v[i][3]).trim() !== String(pin).trim()) return { error: 'PIN salah.' };
+      if (String(v[i][3]).trim() !== pinBersih) {
+        cache.put(kunciGagal, String(jumlahGagal + 1), 900); // Kunci selama 15 menit (900 detik)
+        return { error: 'ID karyawan atau PIN salah.' };
+      }
+      // Berhasil login: reset pencatatan kegagalan
+      if (jumlahGagal > 0) cache.remove(kunciGagal);
       return { id: v[i][0], nama: v[i][1], jabatan: v[i][2] };
     }
   }
-  return { error: 'ID karyawan tidak ditemukan.' };
+
+  // Jika ID tidak ditemukan, hitung juga agar penyerang tidak bisa enumerasi ID
+  cache.put(kunciGagal, String(jumlahGagal + 1), 900);
+  return { error: 'ID karyawan atau PIN salah.' };
 }
 
 /** Cek login + status hari ini (dipanggil saat karyawan masuk ke aplikasi). */
@@ -231,7 +258,13 @@ function absen(data) {
 // ===================== API untuk admin.html =====================
 function cekAdmin_(kunci) {
   var cfg = bacaPengaturan_();
-  if (!kunci || kunci !== cfg.kunci_admin) throw new Error('Kunci admin salah.');
+  var kunciMaster = String(cfg.kunci_admin || '').trim();
+  if (!kunciMaster || kunciMaster === 'ganti-kunci-ini') {
+    throw new Error('Keamanan: Harap ganti kunci_admin di sheet Pengaturan sebelum menggunakan panel admin.');
+  }
+  if (!kunci || String(kunci).trim() !== kunciMaster) {
+    throw new Error('Kunci admin salah.');
+  }
   return cfg;
 }
 

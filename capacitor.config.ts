@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     url: 'https://script.google.com/macros/s/AKfycbyuRsms6AJluSSmaOQCjyFR7QTNiOVO2gOBsdGq0ndJ_h7RCObweu2udHwzz9FoBZF-WA/exec',
-    cleartext: true,
+    cleartext: false,
     allowNavigation: [
       'script.google.com',
       '*.google.com',

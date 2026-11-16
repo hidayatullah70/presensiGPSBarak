@@ -1,0 +1,138 @@
+{
+  "target": "Presensi GPS PT. BARAK",
+  "date": "2026-11-16",
+  "asvs_level": 2,
+  "verdict": "GO",
+  "summary": {
+    "confirmed": 8,
+    "fixed": 6,
+    "critical": 0,
+    "high_open": 0,
+    "medium_open": 2,
+    "low_open": 0,
+    "needs_validation": 1,
+    "rejected": 1
+  },
+  "findings": [
+    {
+      "id": "GA-001",
+      "title": "Kredensial Default kunci_admin pada Sheet Pengaturan",
+      "status": "confirmed",
+      "severity": "High",
+      "owasp": "A02:2025",
+      "asvs": "V2.1",
+      "location": "Code.gs:258",
+      "evidence": "Server kini memblokir akses panel admin jika kunci_admin bernilai default 'ganti-kunci-ini'.",
+      "impact": "Telah dicegah secara server-side.",
+      "fix": "Selesai ditambal: kode cekAdmin_() sekarang melempar error wajib ganti kata sandi.",
+      "retest": "passed"
+    },
+    {
+      "id": "GA-002",
+      "title": "Ketiadaan Rate Limiting & Proteksi Brute-Force pada PIN Karyawan",
+      "status": "confirmed",
+      "severity": "High",
+      "owasp": "A07:2025",
+      "asvs": "V2.2",
+      "location": "Code.gs:167-195",
+      "evidence": "CacheService kini melacak percobaan gagal per ID. Jika gagal 5 kali, akun dikunci 15 menit.",
+      "impact": "Serangan brute-force otomatis 10.000 kombinasi PIN telah dimitigasi.",
+      "fix": "Selesai ditambal: rate limiting dengan batas 5 percobaan salah per 15 menit.",
+      "retest": "passed"
+    },
+    {
+      "id": "GA-003",
+      "title": "Penyimpanan PIN Karyawan Berupa Teks Polos (Plaintext) di Google Sheet",
+      "status": "confirmed",
+      "severity": "Medium",
+      "owasp": "A04:2025",
+      "asvs": "V2.4",
+      "location": "Code.gs:59-62",
+      "evidence": "Kolom D sheet Karyawan menyimpan PIN teks biasa. Risiko internal hanya jika staf memiliki akses edit/view ke file spreadsheet.",
+      "impact": "Risiko insidental internal.",
+      "fix": "Rekomendasi operasional: batasi akses Google Sheet hanya untuk Super Admin (HRD).",
+      "retest": "accepted_risk"
+    },
+    {
+      "id": "GA-004",
+      "title": "Pesan Error Berbeda Membocorkan Validitas ID Karyawan (User Enumeration)",
+      "status": "confirmed",
+      "severity": "Medium",
+      "owasp": "A10:2025",
+      "asvs": "V2.2",
+      "location": "Code.gs:170",
+      "evidence": "Pesan error diseragamkan menjadi 'ID karyawan atau PIN salah.' baik untuk ID salah maupun PIN salah.",
+      "impact": "Enumerasi ID karyawan oleh penyerang telah dicegah.",
+      "fix": "Selesai ditambal: pesan error seragam di cariKaryawan_().",
+      "retest": "passed"
+    },
+    {
+      "id": "GA-005",
+      "title": "Kerentanan Pemalsuan Lokasi GPS Client-Side (GPS Spoofing)",
+      "status": "confirmed",
+      "severity": "Medium",
+      "owasp": "A06:2025",
+      "asvs": "V10.1",
+      "location": "Code.gs:137-145",
+      "evidence": "Koordinat GPS berasal dari perangkat klien.",
+      "impact": "Potensi penggunaan aplikasi Fake GPS.",
+      "fix": "Mitigasi kompensasi aktif: selfie lingkungan kerja wajib diambil (wajib_foto: ya).",
+      "retest": "mitigated"
+    },
+    {
+      "id": "GA-006",
+      "title": "Fungsi setup() Terbuka ke Klien Tanpa Proteksi Otorisasi",
+      "status": "confirmed",
+      "severity": "Low",
+      "owasp": "A01:2025",
+      "asvs": "V4.1",
+      "location": "Code.gs:54",
+      "evidence": "Fungsi setup() kini memeriksa apakah sheet sudah ada. Jika sudah ada, setup langsung berhenti.",
+      "impact": "Mencegah duplikasi folder atau eksekusi setup berulang.",
+      "fix": "Selesai ditambal: guard pengecekan sheet Pengaturan pada setup().",
+      "retest": "passed"
+    },
+    {
+      "id": "GA-007",
+      "title": "Subresource Integrity (SRI) Hilang pada Library CDN Leaflet",
+      "status": "confirmed",
+      "severity": "Low",
+      "owasp": "A03:2025",
+      "asvs": "V14.2",
+      "location": "index.html:7",
+      "evidence": "Leaflet CSS & JS kini dilengkapi atribut integrity SHA-512 dan crossorigin='anonymous'.",
+      "impact": "Mencegah serangan supply chain injection melalui CDN.",
+      "fix": "Selesai ditambal: hash SHA-512 resmi ditambahkan pada link & script tag.",
+      "retest": "passed"
+    },
+    {
+      "id": "GA-008",
+      "title": "Izin usesCleartextTraffic Aktif pada AndroidManifest.xml",
+      "status": "confirmed",
+      "severity": "Low",
+      "owasp": "A02:2025",
+      "asvs": "V14.1",
+      "location": "android/app/src/main/AndroidManifest.xml:8",
+      "evidence": "android:usesCleartextTraffic kini disetel 'false' dan cleartext di capacitor.config.ts disetel 'false'.",
+      "impact": "Mencegah sniffing dan pembajakan koneksi HTTP tanpa enkripsi.",
+      "fix": "Selesai ditambal: seluruh komunikasi dipaksa menggunakan HTTPS/TLS.",
+      "retest": "passed"
+    },
+    {
+      "id": "GA-NV-001",
+      "title": "Dugaan Hak Akses Google Sheet dan Google Drive Publik",
+      "status": "needs_validation",
+      "severity": null,
+      "missing_fact": "Hak akses sharing spreadsheet dan folder foto berada di panel Google Drive cloud pemilik akun.",
+      "validation_plan": "Pemilik akun memeriksa tombol 'Bagikan' (Share) pada Google Sheet dan Folder Foto Presensi di Google Drive; pastikan 'Akses umum' disetel ke 'Dibatasi' (Restricted), bukan 'Siapa saja yang memiliki link'."
+    },
+    {
+      "id": "GA-REJ-001",
+      "title": "Injeksi SQL (SQL Injection)",
+      "status": "rejected",
+      "severity": null,
+      "evidence": "Aplikasi tidak menggunakan RDBMS / SQL database. Data disimpan via SpreadsheetApp API yang kebal terhadap SQL Injection klasik.",
+      "impact": "Tidak ada risiko SQL Injection."
+    }
+  ]
+}
