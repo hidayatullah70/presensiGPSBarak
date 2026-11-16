@@ -255,6 +255,56 @@ function absen(data) {
   }
 }
 
+/**
+ * Ubah PIN mandiri oleh karyawan.
+ * data: { id, pinLama, pinBaru, pinBaruKonfirmasi }
+ */
+function gantiPin(data) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) return { ok: false, pesan: 'Server sibuk, coba lagi.' };
+  try {
+    var idBersih = String(data.id || '').trim().toUpperCase();
+    var pinLama = String(data.pinLama || '').trim();
+    var pinBaru = String(data.pinBaru || '').trim();
+    var konfirmasi = String(data.pinBaruKonfirmasi || '').trim();
+
+    if (!idBersih || !pinLama) return { ok: false, pesan: 'PIN lama harus diisi.' };
+    if (!pinBaru || pinBaru.length < 4) return { ok: false, pesan: 'PIN baru minimal 4 angka.' };
+    if (!/^\d+$/.test(pinBaru)) return { ok: false, pesan: 'PIN hanya boleh berisi angka.' };
+    if (pinBaru !== konfirmasi) return { ok: false, pesan: 'Konfirmasi PIN baru tidak cocok.' };
+    if (pinBaru === pinLama) return { ok: false, pesan: 'PIN baru tidak boleh sama dengan PIN lama.' };
+
+    var cache = CacheService.getScriptCache();
+    var kunciGagal = 'brute_' + idBersih;
+    var jumlahGagal = Number(cache.get(kunciGagal) || 0);
+    if (jumlahGagal >= 5) {
+      return { ok: false, pesan: 'Terlalu banyak percobaan salah. Coba lagi dalam 15 menit.' };
+    }
+
+    var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_KARYAWAN);
+    var v = sh.getDataRange().getDisplayValues();
+
+    for (var i = 1; i < v.length; i++) {
+      if (String(v[i][0]).trim().toUpperCase() === idBersih) {
+        if (String(v[i][4]).toLowerCase() === 'tidak') {
+          return { ok: false, pesan: 'Akun nonaktif. Hubungi admin.' };
+        }
+        if (String(v[i][3]).trim() !== pinLama) {
+          cache.put(kunciGagal, String(jumlahGagal + 1), 900);
+          return { ok: false, pesan: 'PIN saat ini salah.' };
+        }
+        if (jumlahGagal > 0) cache.remove(kunciGagal);
+        // Perbarui PIN di kolom D (kolom ke-4) dan kunci format teks agar angka 0 di depan tetap aman
+        sh.getRange(i + 1, 4).setValue(pinBaru).setNumberFormat('@');
+        return { ok: true, pesan: 'PIN berhasil diubah!' };
+      }
+    }
+    return { ok: false, pesan: 'ID karyawan tidak ditemukan.' };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 // ===================== API untuk admin.html =====================
 function cekAdmin_(kunci) {
   var cfg = bacaPengaturan_();

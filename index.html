@@ -92,7 +92,10 @@
     <div class="kartu">
       <div class="salam">
         <div><h2 id="namaKaryawan">-</h2><span class="redup kecil" id="jabatan">-</span></div>
-        <button class="tautan" id="btnKeluar">Ganti akun</button>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="tautan" id="btnBukaGantiPin" type="button" style="font-size:12px">Ganti PIN</button>
+          <button class="tautan" id="btnKeluar" style="font-size:12px;opacity:0.8">Ganti akun</button>
+        </div>
       </div>
       <div class="status-hari">
         <div><small>Masuk</small><b id="stMasuk">Belum</b></div>
@@ -143,6 +146,26 @@
   </div>
 </div>
 
+<div class="hasil" id="modalGantiPin" hidden>
+  <div class="kartu" style="text-align:left;max-width:340px">
+    <h2 style="margin-bottom:4px">Ganti PIN</h2>
+    <p class="redup kecil" style="margin:0 0 12px">Buat PIN baru minimal 4 angka untuk keamanan akun pribadi Anda.</p>
+    <form id="formGantiPin">
+      <label for="inPinLama">PIN Saat Ini</label>
+      <input id="inPinLama" type="password" inputmode="numeric" placeholder="Masukkan PIN saat ini" required>
+      <label for="inPinBaru">PIN Baru (min. 4 angka)</label>
+      <input id="inPinBaru" type="password" inputmode="numeric" placeholder="Masukkan PIN baru" required>
+      <label for="inPinBaruKonf">Konfirmasi PIN Baru</label>
+      <input id="inPinBaruKonf" type="password" inputmode="numeric" placeholder="Ulangi PIN baru" required>
+      <p id="pesanGantiPin" class="kecil" style="color:var(--merah);min-height:18px;margin:8px 0 0"></p>
+      <div class="baris-tombol" style="margin-top:12px">
+        <button class="tombol garis" id="btnBatalGantiPin" type="button">Batal</button>
+        <button class="tombol" id="btnSimpanGantiPin" type="submit">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <canvas id="kanvas" hidden></canvas>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous"></script>
 <script>
@@ -189,6 +212,57 @@
       .then(function(){ $('btnLogin').disabled = false; $('btnLogin').textContent = 'Masuk'; });
   };
   $('btnKeluar').onclick = function(){ location.reload(); };
+
+  // --- ganti pin mandiri ---
+  $('btnBukaGantiPin').onclick = function(){
+    $('inPinLama').value = '';
+    $('inPinBaru').value = '';
+    $('inPinBaruKonf').value = '';
+    $('pesanGantiPin').textContent = '';
+    $('modalGantiPin').hidden = false;
+    setTimeout(function(){ $('inPinLama').focus(); }, 100);
+  };
+  $('btnBatalGantiPin').onclick = function(){
+    $('modalGantiPin').hidden = true;
+  };
+  $('formGantiPin').onsubmit = function(e){
+    e.preventDefault();
+    if (!AKUN) return;
+    var pinLama = $('inPinLama').value.trim();
+    var pinBaru = $('inPinBaru').value.trim();
+    var pinKonf = $('inPinBaruKonf').value.trim();
+
+    if (!pinLama) { $('pesanGantiPin').textContent = 'PIN saat ini harus diisi.'; return; }
+    if (pinBaru.length < 4) { $('pesanGantiPin').textContent = 'PIN baru minimal 4 angka.'; return; }
+    if (!/^\d+$/.test(pinBaru)) { $('pesanGantiPin').textContent = 'PIN hanya boleh berisi angka.'; return; }
+    if (pinBaru !== pinKonf) { $('pesanGantiPin').textContent = 'Konfirmasi PIN baru tidak cocok.'; return; }
+    if (pinBaru === pinLama) { $('pesanGantiPin').textContent = 'PIN baru tidak boleh sama dengan PIN lama.'; return; }
+
+    var btn = $('btnSimpanGantiPin'), teks = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="memuat"></span>';
+    $('pesanGantiPin').textContent = '';
+
+    server('gantiPin', [{
+      id: AKUN.id,
+      pinLama: pinLama,
+      pinBaru: pinBaru,
+      pinBaruKonfirmasi: pinKonf
+    }]).then(function(r){
+      if (!r.ok) {
+        $('pesanGantiPin').textContent = r.pesan;
+      } else {
+        AKUN.pin = pinBaru;
+        $('modalGantiPin').hidden = true;
+        tampilHasil(true, 'PIN Berhasil Diubah', 'Gunakan PIN baru ini saat masuk atau melakukan absensi selanjutnya.');
+      }
+    }).catch(function(err){
+      $('pesanGantiPin').textContent = err;
+    }).then(function(){
+      btn.disabled = false;
+      btn.textContent = teks;
+    });
+  };
 
   var HARI = [];
   function setStatus(list){ HARI = list || []; $('stMasuk').textContent = HARI.indexOf('Masuk')>-1 ? 'Sudah ✓' : 'Belum'; $('stPulang').textContent = HARI.indexOf('Pulang')>-1 ? 'Sudah ✓' : 'Belum'; cekTombol(); }
