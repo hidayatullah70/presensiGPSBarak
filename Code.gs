@@ -45,7 +45,7 @@ function doGet(e) {
   t.logoInisial = LOGO_INISIAL;
   return t.evaluate()
     .setTitle(page === 'admin' ? 'Admin Presensi' : 'Presensi')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
 }
 
