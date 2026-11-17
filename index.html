@@ -77,11 +77,11 @@
   <section id="layarLogin" class="kartu">
     <h2>Halo! Silakan masuk</h2>
     <p class="redup kecil" style="margin:0">Pakai ID karyawan dan PIN dari admin.</p>
-    <form id="formLogin">
+    <form id="formLogin" autocomplete="off">
       <label for="inId">ID Karyawan</label>
-      <input id="inId" autocomplete="username" placeholder="contoh: K001" required>
+      <input id="inId" type="text" autocomplete="off" autocapitalize="characters" placeholder="isi ID Karyawan" required>
       <label for="inPin">PIN</label>
-      <input id="inPin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••" required>
+      <input id="inPin" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••" required>
       <p id="pesanLogin" class="kecil" style="color:var(--merah);min-height:20px"></p>
       <button class="tombol" id="btnLogin">Masuk</button>
     </form>
@@ -197,7 +197,11 @@
   $('btnTutupHasil').onclick = function(){ $('hasil').hidden = true; };
 
   // --- login ---
-  try { $('inId').value = localStorage.getItem('presensi-id') || ''; } catch(e){}
+  try {
+    localStorage.removeItem('presensi-id');
+    $('inId').value = '';
+    $('inPin').value = '';
+  } catch(e){}
   server('getInfo').then(function(i){ INFO = i; $('namaKantor').textContent = i.kantor || 'Presensi'; }).catch(function(e){ $('pesanLogin').textContent = e; });
 
   $('formLogin').onsubmit = function(e){
@@ -207,7 +211,6 @@
     server('cekKaryawan',[id,pin]).then(function(r){
       if (r.error) { $('pesanLogin').textContent = r.error; return; }
       AKUN = { id:r.id, pin:pin, nama:r.nama };
-      try { localStorage.setItem('presensi-id', r.id); } catch(e){}
       $('namaKaryawan').textContent = r.nama; $('jabatan').textContent = r.jabatan + ' · ' + r.id;
       setStatus(r.hariIni);
       $('layarLogin').hidden = true; $('layarAbsen').hidden = false;
@@ -215,7 +218,49 @@
     }).catch(function(e){ $('pesanLogin').textContent = e; })
       .then(function(){ $('btnLogin').disabled = false; $('btnLogin').textContent = 'Masuk'; });
   };
-  $('btnKeluar').onclick = function(){ location.reload(); };
+
+  function gantiAkun(){
+    // 1. Hentikan kamera jika sedang aktif
+    if (stream) {
+      try { stream.getTracks().forEach(function(t){ t.stop(); }); } catch(e){}
+      stream = null;
+    }
+    // 2. Reset foto & status kamera
+    FOTO = '';
+    $('foto').hidden = true;
+    $('foto').src = '';
+    $('inFotoFile').value = '';
+    var v = $('video'); if (v) v.hidden = true;
+    var b = $('bingkai'); if (b) b.hidden = true;
+    var ak = $('aksiKamera'); if (ak) ak.hidden = true;
+    var ik = $('infoKamera'); if (ik) ik.hidden = false;
+    $('btnFoto').disabled = false;
+    $('btnUlangFoto').disabled = true;
+
+    // 3. Reset sesi & modal
+    AKUN = null;
+    HARI = [];
+    $('stMasuk').textContent = 'Belum';
+    $('stPulang').textContent = 'Belum';
+    $('modalGantiPin').hidden = true;
+    $('hasil').hidden = true;
+    cekTombol();
+
+    // 4. Kosongkan input ID & PIN (selalu bersih saat ganti akun)
+    $('inId').value = '';
+    $('inPin').value = '';
+    $('pesanLogin').textContent = '';
+    $('btnLogin').disabled = false;
+    $('btnLogin').textContent = 'Masuk';
+    try { localStorage.removeItem('presensi-id'); } catch(e){}
+
+    // 5. Kembali ke layar login tanpa reload browser/webview
+    $('layarAbsen').hidden = true;
+    $('layarLogin').hidden = false;
+    window.scrollTo(0, 0);
+    setTimeout(function(){ $('inId').focus(); }, 150);
+  }
+  $('btnKeluar').onclick = gantiAkun;
 
   // --- ganti pin mandiri ---
   $('btnBukaGantiPin').onclick = function(){
@@ -273,11 +318,15 @@
 
   // --- peta & lokasi ---
   function mulaiPeta(){
-    if (peta || !window.L || !INFO) return;
-    peta = L.map('peta',{zoomControl:false,attributionControl:true}).setView([INFO.lat, INFO.lng], 17);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(peta);
-    L.circle([INFO.lat, INFO.lng],{radius:INFO.radius,color:'#c6f432',weight:2,fillOpacity:.12}).addTo(peta);
-    L.circleMarker([INFO.lat, INFO.lng],{radius:6,color:'#0b1f3a',fillColor:'#c6f432',fillOpacity:1,weight:2}).addTo(peta).bindTooltip(INFO.kantor);
+    if (!window.L || !INFO) return;
+    if (!peta) {
+      peta = L.map('peta',{zoomControl:false,attributionControl:true}).setView([INFO.lat, INFO.lng], 17);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(peta);
+      L.circle([INFO.lat, INFO.lng],{radius:INFO.radius,color:'#c6f432',weight:2,fillOpacity:.12}).addTo(peta);
+      L.circleMarker([INFO.lat, INFO.lng],{radius:6,color:'#0b1f3a',fillColor:'#c6f432',fillOpacity:1,weight:2}).addTo(peta).bindTooltip(INFO.kantor);
+    } else {
+      setTimeout(function(){ peta.invalidateSize(); }, 200);
+    }
   }
   function ambilLokasi(){
     var l = $('lencanaLokasi'); l.className = 'lencana'; l.textContent = 'Mencari lokasi…';

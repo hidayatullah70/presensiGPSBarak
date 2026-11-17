@@ -111,7 +111,15 @@
   }
 
   $('formKunci').onsubmit=function(e){ e.preventDefault(); KUNCI=$('inKunci').value; muat().then(function(){ $('formKunci').hidden=true; $('panel').hidden=false; $('btnKeluar').hidden=false; }).catch(function(er){ $('pesan').textContent=er; }); };
-  $('btnKeluar').onclick=function(){ location.reload(); };
+  $('btnKeluar').onclick=function(){
+    KUNCI = '';
+    $('inKunci').value = '';
+    $('pesan').textContent = '';
+    $('formKunci').hidden = false;
+    $('panel').hidden = true;
+    $('btnKeluar').hidden = true;
+    setTimeout(function(){ $('inKunci').focus(); }, 100);
+  };
   $('seg').onclick=function(e){ var t=e.target.closest('button'); if(!t) return; MODE=t.dataset.m; Array.prototype.forEach.call(this.children,function(x){x.classList.toggle('aktif',x===t);}); $('inTgl').hidden=MODE!=='hari'; $('inBln').hidden=MODE!=='bulan'; muat().catch(alert); };
   $('inTgl').onchange=$('inBln').onchange=function(){ muat().catch(alert); };
   $('btnCsv').onclick=function(){
