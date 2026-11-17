@@ -6,44 +6,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Admin Presensi</title>
 <style>
-  :root{--navy:#0b1f3a;--primary-green:#32B23E;--primary-red:#BA1D23;--lime:#c6f432;--latar:#f3f5f9;--kartu:#fff;--teks:#0f1b2d;--redup:#5b6b82;--garis:#e1e6ee;--merah:#d93a3a;--kuning:#b7791f;--hijau:#2f855a}
+  :root{
+    /* Standar Palet Warna Perusahaan */
+    --primary-red:#BA1D23;      /* Aksen primer, tombol penting, peringatan bahaya */
+    --primary-yellow:#F9CE3B;   /* Aksen emas/kuning, highlight bintang/warning */
+    --accent-green:#32B23E;     /* Hijau navbar publik, status aktif, border sorotan */
+    --ink:#0F172A;              /* Latar hero gelap, teks utama pekat */
+    --slate:#334155;            /* Teks sekunder, pembatas */
+    --muted:#64748B;            /* Teks placeholder, deskripsi tabel */
+    --border:#E2E8F0;           /* Garis batas kartu dan tabel */
+    --canvas:#F8FAFC;           /* Latar belakang dashboard internal */
+    --surface:#FFFFFF;          /* Latar belakang kartu, modal, dan drawer */
+    --info:#2563EB;             /* Biru status informasi */
+    --warning:#D97706;          /* Oranye status perhatian/tinjauan */
+    --danger:#DC2626;           /* Merah status kedaluwarsa/gagal */
+    --success:#16A34A;          /* Hijau status berhasil/disetujui */
+  }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--latar);color:var(--teks);font:14.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  body{margin:0;background:var(--canvas);color:var(--ink);font:14.5px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   button,input{font:inherit}
   [hidden]{display:none!important}
-  header{background:var(--primary-green);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-  header .tombol{background:#fff;color:var(--primary-green);border-color:#fff}
+  header{background:var(--accent-green);color:var(--surface);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  header .tombol{background:var(--surface);color:var(--accent-green);border-color:var(--surface)}
   .logo{display:flex;align-items:center;gap:10px;font-weight:800}
-  .logo i{width:32px;height:32px;border-radius:9px;background:#fff;display:grid;place-items:center;color:var(--primary-green);font-style:normal;font-weight:900}
+  .logo i{width:32px;height:32px;border-radius:9px;background:var(--surface);display:grid;place-items:center;color:var(--accent-green);font-style:normal;font-weight:900}
   main{max-width:1100px;margin:0 auto;padding:20px}
-  .kartu{background:var(--kartu);border:1px solid var(--garis);border-radius:16px;padding:18px}
+  .kartu{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
   .masuk{max-width:380px;margin:40px auto}
-  input{padding:10px 12px;border:1px solid var(--garis);border-radius:10px;background:#fff;color:var(--teks)}
-  input:focus{outline:2px solid var(--primary-green);border-color:transparent}
-  .tombol{padding:10px 16px;border-radius:10px;border:1px solid var(--garis);background:#fff;font-weight:700;cursor:pointer;color:var(--teks)}
-  .tombol.utama{background:var(--primary-green);color:#fff;border-color:var(--primary-green);font-weight:800}
+  input{padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--ink)}
+  input:focus{outline:2px solid var(--accent-green);border-color:transparent}
+  .tombol{padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-weight:700;cursor:pointer;color:var(--slate)}
+  .tombol.utama{background:var(--accent-green);color:var(--surface);border-color:var(--accent-green);font-weight:800}
   .alat{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-  .segmen{display:inline-flex;background:#fff;border:1px solid var(--garis);border-radius:10px;padding:3px}
-  .segmen button{border:0;background:none;padding:7px 14px;border-radius:8px;font-weight:700;cursor:pointer;color:var(--redup)}
-  .segmen button.aktif{background:var(--primary-green);color:#fff}
+  .segmen{display:inline-flex;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px}
+  .segmen button{border:0;background:none;padding:7px 14px;border-radius:8px;font-weight:700;cursor:pointer;color:var(--muted)}
+  .segmen button.aktif{background:var(--accent-green);color:var(--surface)}
   .ruang{flex:1}
   .angka{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-  .angka div{background:#fff;border:1px solid var(--garis);border-radius:14px;padding:14px 16px}
-  .angka small{color:var(--redup);font-weight:600}
-  .angka b{display:block;font-size:26px}
-  .angka div:first-child{background:var(--primary-green);color:#fff;border-color:var(--primary-green)}
-  .angka div:first-child small{color:#e6f9e8;font-weight:700}
-  .bungkus{background:#fff;border:1px solid var(--garis);border-radius:16px;overflow:auto}
+  .angka div{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+  .angka small{color:var(--muted);font-weight:600}
+  .angka b{display:block;font-size:26px;color:var(--ink)}
+  .angka div:first-child{background:var(--accent-green);color:var(--surface);border-color:var(--accent-green)}
+  .angka div:first-child b{color:var(--surface)}
+  .angka div:first-child small{color:rgba(255,255,255,0.9);font-weight:700}
+  .bungkus{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:auto}
   table{width:100%;border-collapse:collapse;min-width:640px}
-  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--garis)}
-  th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--redup);background:#fafbfd}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--border)}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--canvas)}
   tr:last-child td{border-bottom:0}
-  .st{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:#edf2f7;color:var(--redup)}
-  .st.tepat{background:#e6f6ec;color:var(--hijau)} .st.telat{background:#fdf3e1;color:var(--kuning)} .st.absen{background:#fdeaea;color:var(--merah)}
-  a{color:#2b6cb0;font-weight:600}
-  .redup{color:var(--redup)}
+  .st{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:#F1F5F9;color:var(--muted)}
+  .st.tepat{background:#DCFCE7;color:var(--success)} .st.telat{background:#FEF3C7;color:var(--warning)} .st.absen{background:#FEE2E2;color:var(--danger)}
+  a{color:var(--info);font-weight:600;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .redup{color:var(--muted)}
   @media (max-width:720px){ .angka{grid-template-columns:repeat(2,1fr)} main{padding:14px} .ruang{display:none} }
-  @media print{ header .tombol,.alat{display:none} body{background:#fff} }
+  @media print{ header .tombol,.alat{display:none} body{background:var(--surface)} }
   .logo-img[hidden]{display:none}.logo-img{height:34px;max-width:120px;object-fit:contain;border-radius:8px}
 </style>
 </head>

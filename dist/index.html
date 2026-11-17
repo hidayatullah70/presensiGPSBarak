@@ -1,10 +1,502 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <meta charset="utf-8">
-  <title>Presensi PT. BARAK</title>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Presensi</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha512-h9FcoyWjHcOcmEVkxOfTLnmZFWIH0iZhZT1H2TbOq55xssQGEJHEaIm+PgoUaZbRvQTNTluNOEfb1ZRy6D3BOw==" crossorigin="anonymous">
+<style>
+  :root{
+    /* Standar Palet Warna Perusahaan */
+    --primary-red:#BA1D23;      /* Aksen primer, tombol penting, peringatan bahaya */
+    --primary-yellow:#F9CE3B;   /* Aksen emas/kuning, highlight bintang/warning */
+    --accent-green:#32B23E;     /* Hijau navbar publik, status aktif, border sorotan */
+    --ink:#0F172A;              /* Latar hero gelap, teks utama pekat */
+    --slate:#334155;            /* Teks sekunder, pembatas */
+    --muted:#64748B;            /* Teks placeholder, deskripsi tabel */
+    --border:#E2E8F0;           /* Garis batas kartu dan tabel */
+    --canvas:#F8FAFC;           /* Latar belakang dashboard internal */
+    --surface:#FFFFFF;          /* Latar belakang kartu, modal, dan drawer */
+    --info:#2563EB;             /* Biru status informasi */
+    --warning:#D97706;          /* Oranye status perhatian/tinjauan */
+    --danger:#DC2626;           /* Merah status kedaluwarsa/gagal */
+    --success:#16A34A;          /* Hijau status berhasil/disetujui */
+
+    /* Variabel Tema Mobile App Gelap (Dark Hero) */
+    --bg-app:var(--ink);
+    --bg-kartu:#1E293B;
+    --bg-input:#0B1120;
+    --border-dark:var(--slate);
+    --teks:#F8FAFC;
+    --redup:#94A3B8;
+    --radius:16px;
+  }
+  *,*:before,*:after{box-sizing:border-box}
+  html{width:100%;-webkit-text-size-adjust:100%}
+  body{margin:0;padding:0;width:100%;max-width:100vw;overflow-x:hidden;min-height:100vh;background:var(--bg-app);color:var(--teks);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  button,input{font:inherit}
+  [hidden]{display:none!important}
+  .wadah{width:100%;max-width:440px;margin:0 auto;padding:14px 14px 28px}
+  .atas{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px;width:100%}
+  .logo{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:.01em;min-width:0;flex:1 1 auto}
+  .logo-img[hidden]{display:none}.logo-img{height:32px;max-width:100px;object-fit:contain;border-radius:6px;flex-shrink:0}
+  .logo i{width:32px;height:32px;border-radius:9px;background:var(--primary-red);display:grid;place-items:center;color:#fff;font-style:normal;font-weight:900;flex-shrink:0}
+  .logo span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:16px}
+  .jam{text-align:right;flex-shrink:0}
+  .jam b{display:block;font-size:18px;font-variant-numeric:tabular-nums;letter-spacing:.02em;line-height:1.2}
+  .jam small{color:var(--redup);font-size:11px;display:block;line-height:1.3;white-space:nowrap}
+  .kartu{background:var(--bg-kartu);border:1px solid var(--border-dark);border-radius:var(--radius);padding:14px;margin-bottom:12px;width:100%}
+  .kartu h2{margin:0 0 4px;font-size:17px}
+  .redup{color:var(--redup)} .kecil{font-size:12.5px}
+  label{display:block;font-size:12.5px;color:var(--redup);font-weight:600;margin:10px 0 5px}
+  input{width:100%;max-width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border-dark);background:var(--bg-input);color:var(--teks);font-size:15px}
+  input:focus{outline:2px solid var(--primary-red);border-color:transparent}
+  .tombol{width:100%;padding:13px;border:0;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;background:var(--primary-red);color:#ffffff}
+  .tombol:disabled{opacity:.4;cursor:not-allowed}
+  .tombol.garis{background:transparent;color:var(--teks);border:1px solid var(--border-dark)}
+  .salam{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .tautan{background:none;border:0;color:var(--accent-green);font-weight:700;cursor:pointer;padding:4px}
+  .status-hari{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .status-hari div{background:var(--bg-app);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:8px 10px}
+  .status-hari small{color:var(--redup);font-size:11.5px}
+  .status-hari b{display:block;font-size:15px}
+  .peta{height:180px;border-radius:12px;overflow:hidden;background:#020617;border:1px solid var(--border-dark);position:relative}
+  .lokasi-info{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px}
+  .lencana{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--bg-app);border:1px solid var(--border-dark)}
+  .lencana::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--redup)}
+  .lencana.ok{color:var(--accent-green)} .lencana.ok::before{background:var(--accent-green)}
+  .lencana.jauh{color:var(--danger)} .lencana.jauh::before{background:var(--danger)}
+  .kamera{position:relative;aspect-ratio:3/4;max-height:360px;width:100%;border-radius:12px;overflow:hidden;background:#020617;border:1px solid var(--border-dark);display:grid;place-items:center}
+  .kamera video,.kamera img{width:100%;height:100%;object-fit:cover}
+  .kamera video{transform:scaleX(-1)}
+  .bingkai{position:absolute;inset:12% 18%;border:2px dashed rgba(50,178,62,.75);border-radius:50% 50% 46% 46%;pointer-events:none}
+  .kamera .info{position:absolute;color:var(--redup);text-align:center;padding:16px}
+  .baris-tombol{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .hasil{position:fixed;inset:0;background:rgba(15,23,42,.88);display:grid;place-items:center;padding:16px;z-index:1000}
+  .hasil .kartu{max-width:340px;width:100%;text-align:center;padding:24px 18px;background:var(--bg-kartu);border:1px solid var(--border-dark)}
+  .ikon-hasil{width:56px;height:56px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-size:26px;font-weight:900;background:var(--success);color:#fff}
+  .ikon-hasil.gagal{background:var(--danger);color:#fff}
+  .memuat{display:inline-block;width:16px;height:16px;border:3px solid currentColor;border-right-color:transparent;border-radius:50%;animation:putar .7s linear infinite;vertical-align:-3px}
+  @keyframes putar{to{transform:rotate(360deg)}}
+  .leaflet-container{background:#020617}
+  @media (max-width:380px){
+    .wadah{padding:10px 8px 20px}
+    .atas .logo span{font-size:14px}
+    .jam b{font-size:16px}
+    .jam small{font-size:10px}
+    .kartu{padding:12px 10px;border-radius:12px}
+    .tombol{padding:11px;font-size:14px}
+  }
+</style>
 </head>
 <body>
-  <p>Memuat Presensi PT. BARAK...</p>
+<div class="wadah">
+  <header class="atas">
+    <div class="logo"><img class="logo-img" src="<?= logoUrl ?>" alt="Logo" hidden onload="this.hidden=false;this.nextElementSibling.style.display='none'" onerror="this.remove()"><i><?= logoInisial ?></i><span id="namaKantor">Presensi</span></div>
+    <div class="jam"><b id="jam">--:--:--</b><small id="tanggal">-</small></div>
+  </header>
+
+  <!-- Masuk -->
+  <section id="layarLogin" class="kartu">
+    <h2>Halo! Silakan masuk</h2>
+    <p class="redup kecil" style="margin:0">Pakai ID karyawan dan PIN dari admin.</p>
+    <form id="formLogin" autocomplete="off">
+      <label for="inId">ID Karyawan</label>
+      <input id="inId" type="text" autocomplete="off" autocapitalize="characters" placeholder="isi ID Karyawan" required>
+      <label for="inPin">PIN</label>
+      <input id="inPin" type="password" inputmode="numeric" autocomplete="new-password" placeholder="••••" required>
+      <p id="pesanLogin" class="kecil" style="color:var(--merah);min-height:20px"></p>
+      <button class="tombol" id="btnLogin">Masuk</button>
+    </form>
+  </section>
+
+  <!-- Presensi -->
+  <section id="layarAbsen" hidden>
+    <div class="kartu">
+      <div class="salam">
+        <div><h2 id="namaKaryawan">-</h2><span class="redup kecil" id="jabatan">-</span></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="tautan" id="btnBukaGantiPin" type="button" style="font-size:12px">Ganti PIN</button>
+          <button class="tautan" id="btnKeluar" style="font-size:12px;opacity:0.8">Ganti akun</button>
+        </div>
+      </div>
+      <div class="status-hari">
+        <div><small>Masuk</small><b id="stMasuk">Belum</b></div>
+        <div><small>Pulang</small><b id="stPulang">Belum</b></div>
+      </div>
+    </div>
+
+    <div class="kartu">
+      <div id="peta" class="peta"></div>
+      <div class="lokasi-info">
+        <span class="lencana" id="lencanaLokasi">Mencari lokasi…</span>
+        <button class="tautan" id="btnUlangLokasi">Perbarui</button>
+      </div>
+    </div>
+
+    <div class="kartu">
+      <div class="kamera" id="kamera">
+        <video id="video" playsinline autoplay muted hidden></video>
+        <img id="foto" alt="Foto selfie" hidden>
+        <div class="bingkai" id="bingkai" hidden></div>
+        <div class="info" id="infoKamera">
+          Kamera belum aktif.<br><br>
+          <button class="tombol garis" id="btnKamera" type="button" style="width:auto;padding:10px 16px;margin:4px">Nyalakan kamera</button>
+          <button class="tombol" id="btnPilihFoto" type="button" style="width:auto;padding:10px 16px;margin:4px">Ambil / Pilih Foto</button>
+        </div>
+      </div>
+      <input type="file" id="inFotoFile" accept="image/*" capture="user" hidden>
+      <div class="baris-tombol" id="aksiKamera" hidden>
+        <button class="tombol garis" id="btnFoto" type="button">Ambil foto</button>
+        <button class="tombol garis" id="btnUlangFoto" type="button" disabled>Ulangi</button>
+      </div>
+    </div>
+
+    <div class="baris-tombol">
+      <button class="tombol" id="btnMasuk" disabled>Absen Masuk</button>
+      <button class="tombol" id="btnPulang" disabled>Absen Pulang</button>
+    </div>
+    <p class="redup kecil" style="text-align:center;margin-top:12px" id="petunjuk">Pastikan lokasi dalam radius dan foto sudah diambil.</p>
+  </section>
+
+  <footer style="margin-top:24px;text-align:center;font-size:11.5px;color:var(--redup);opacity:0.85">
+    &copy; 2026 PT. Bimasena Adhirajasa Radhika
+  </footer>
+</div>
+
+<div class="hasil" id="hasil" hidden>
+  <div class="kartu">
+    <div class="ikon-hasil" id="ikonHasil">✓</div>
+    <h2 id="judulHasil">Berhasil</h2>
+    <p class="redup" id="isiHasil"></p>
+    <button class="tombol" id="btnTutupHasil">Oke</button>
+  </div>
+</div>
+
+<div class="hasil" id="modalGantiPin" hidden>
+  <div class="kartu" style="text-align:left;max-width:340px">
+    <h2 style="margin-bottom:4px">Ganti PIN</h2>
+    <p class="redup kecil" style="margin:0 0 12px">Buat PIN baru minimal 4 angka untuk keamanan akun pribadi Anda.</p>
+    <form id="formGantiPin">
+      <label for="inPinLama">PIN Saat Ini</label>
+      <input id="inPinLama" type="password" inputmode="numeric" placeholder="Masukkan PIN saat ini" required>
+      <label for="inPinBaru">PIN Baru (min. 4 angka)</label>
+      <input id="inPinBaru" type="password" inputmode="numeric" placeholder="Masukkan PIN baru" required>
+      <label for="inPinBaruKonf">Konfirmasi PIN Baru</label>
+      <input id="inPinBaruKonf" type="password" inputmode="numeric" placeholder="Ulangi PIN baru" required>
+      <p id="pesanGantiPin" class="kecil" style="color:var(--merah);min-height:18px;margin:8px 0 0"></p>
+      <div class="baris-tombol" style="margin-top:12px">
+        <button class="tombol garis" id="btnBatalGantiPin" type="button">Batal</button>
+        <button class="tombol" id="btnSimpanGantiPin" type="submit">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<canvas id="kanvas" hidden></canvas>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" crossorigin="anonymous"></script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var INFO = null, AKUN = null, POS = null, FOTO = '', stream = null, peta, penanda, akurasiLingkar;
+
+  // jam
+  function tik(){ var d=new Date(); $('jam').textContent=d.toLocaleTimeString('id-ID',{hour12:false}); $('tanggal').textContent=d.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'}); }
+  tik(); setInterval(tik,1000);
+
+  function server(fn, args){
+    return new Promise(function(ok, gagal){
+      var r = google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){ gagal(e && e.message || String(e)); });
+      r[fn].apply(r, args || []);
+    });
+  }
+  function haversine(a,b,c,d){ var R=6371000,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,h=Math.sin(x/2)*Math.sin(x/2)+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)*Math.sin(y/2); return 2*R*Math.asin(Math.min(1,Math.sqrt(h))); }
+
+  function tampilHasil(ok, judul, isi){
+    $('ikonHasil').textContent = ok ? '✓' : '!';
+    $('ikonHasil').className = 'ikon-hasil' + (ok ? '' : ' gagal');
+    $('judulHasil').textContent = judul; $('isiHasil').textContent = isi; $('hasil').hidden = false;
+  }
+  $('btnTutupHasil').onclick = function(){ $('hasil').hidden = true; };
+
+  // --- login ---
+  try {
+    localStorage.removeItem('presensi-id');
+    $('inId').value = '';
+    $('inPin').value = '';
+  } catch(e){}
+  server('getInfo').then(function(i){ INFO = i; $('namaKantor').textContent = i.kantor || 'Presensi'; }).catch(function(e){ $('pesanLogin').textContent = e; });
+
+  $('formLogin').onsubmit = function(e){
+    e.preventDefault();
+    var id = $('inId').value.trim(), pin = $('inPin').value.trim();
+    $('btnLogin').disabled = true; $('btnLogin').innerHTML = '<span class="memuat"></span>';
+    server('cekKaryawan',[id,pin]).then(function(r){
+      if (r.error) { $('pesanLogin').textContent = r.error; return; }
+      AKUN = { id:r.id, pin:pin, nama:r.nama };
+      $('namaKaryawan').textContent = r.nama; $('jabatan').textContent = r.jabatan + ' · ' + r.id;
+      setStatus(r.hariIni);
+      $('layarLogin').hidden = true; $('layarAbsen').hidden = false;
+      mulaiPeta(); ambilLokasi();
+    }).catch(function(e){ $('pesanLogin').textContent = e; })
+      .then(function(){ $('btnLogin').disabled = false; $('btnLogin').textContent = 'Masuk'; });
+  };
+
+  function gantiAkun(){
+    // 1. Hentikan kamera jika sedang aktif
+    if (stream) {
+      try { stream.getTracks().forEach(function(t){ t.stop(); }); } catch(e){}
+      stream = null;
+    }
+    // 2. Reset foto & status kamera
+    FOTO = '';
+    $('foto').hidden = true;
+    $('foto').src = '';
+    $('inFotoFile').value = '';
+    var v = $('video'); if (v) v.hidden = true;
+    var b = $('bingkai'); if (b) b.hidden = true;
+    var ak = $('aksiKamera'); if (ak) ak.hidden = true;
+    var ik = $('infoKamera'); if (ik) ik.hidden = false;
+    $('btnFoto').disabled = false;
+    $('btnUlangFoto').disabled = true;
+
+    // 3. Reset sesi & modal
+    AKUN = null;
+    HARI = [];
+    $('stMasuk').textContent = 'Belum';
+    $('stPulang').textContent = 'Belum';
+    $('modalGantiPin').hidden = true;
+    $('hasil').hidden = true;
+    cekTombol();
+
+    // 4. Kosongkan input ID & PIN (selalu bersih saat ganti akun)
+    $('inId').value = '';
+    $('inPin').value = '';
+    $('pesanLogin').textContent = '';
+    $('btnLogin').disabled = false;
+    $('btnLogin').textContent = 'Masuk';
+    try { localStorage.removeItem('presensi-id'); } catch(e){}
+
+    // 5. Kembali ke layar login tanpa reload browser/webview
+    $('layarAbsen').hidden = true;
+    $('layarLogin').hidden = false;
+    window.scrollTo(0, 0);
+    setTimeout(function(){ $('inId').focus(); }, 150);
+  }
+  $('btnKeluar').onclick = gantiAkun;
+
+  // --- ganti pin mandiri ---
+  $('btnBukaGantiPin').onclick = function(){
+    $('inPinLama').value = '';
+    $('inPinBaru').value = '';
+    $('inPinBaruKonf').value = '';
+    $('pesanGantiPin').textContent = '';
+    $('modalGantiPin').hidden = false;
+    setTimeout(function(){ $('inPinLama').focus(); }, 100);
+  };
+  $('btnBatalGantiPin').onclick = function(){
+    $('modalGantiPin').hidden = true;
+  };
+  $('formGantiPin').onsubmit = function(e){
+    e.preventDefault();
+    if (!AKUN) return;
+    var pinLama = $('inPinLama').value.trim();
+    var pinBaru = $('inPinBaru').value.trim();
+    var pinKonf = $('inPinBaruKonf').value.trim();
+
+    if (!pinLama) { $('pesanGantiPin').textContent = 'PIN saat ini harus diisi.'; return; }
+    if (pinBaru.length < 4) { $('pesanGantiPin').textContent = 'PIN baru minimal 4 angka.'; return; }
+    if (!/^\d+$/.test(pinBaru)) { $('pesanGantiPin').textContent = 'PIN hanya boleh berisi angka.'; return; }
+    if (pinBaru !== pinKonf) { $('pesanGantiPin').textContent = 'Konfirmasi PIN baru tidak cocok.'; return; }
+    if (pinBaru === pinLama) { $('pesanGantiPin').textContent = 'PIN baru tidak boleh sama dengan PIN lama.'; return; }
+
+    var btn = $('btnSimpanGantiPin'), teks = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="memuat"></span>';
+    $('pesanGantiPin').textContent = '';
+
+    server('gantiPin', [{
+      id: AKUN.id,
+      pinLama: pinLama,
+      pinBaru: pinBaru,
+      pinBaruKonfirmasi: pinKonf
+    }]).then(function(r){
+      if (!r.ok) {
+        $('pesanGantiPin').textContent = r.pesan;
+      } else {
+        AKUN.pin = pinBaru;
+        $('modalGantiPin').hidden = true;
+        tampilHasil(true, 'PIN Berhasil Diubah', 'Gunakan PIN baru ini saat masuk atau melakukan absensi selanjutnya.');
+      }
+    }).catch(function(err){
+      $('pesanGantiPin').textContent = err;
+    }).then(function(){
+      btn.disabled = false;
+      btn.textContent = teks;
+    });
+  };
+
+  var HARI = [];
+  function setStatus(list){ HARI = list || []; $('stMasuk').textContent = HARI.indexOf('Masuk')>-1 ? 'Sudah ✓' : 'Belum'; $('stPulang').textContent = HARI.indexOf('Pulang')>-1 ? 'Sudah ✓' : 'Belum'; cekTombol(); }
+
+  // --- peta & lokasi ---
+  function mulaiPeta(){
+    if (!window.L || !INFO) return;
+    if (!peta) {
+      peta = L.map('peta',{zoomControl:false,attributionControl:true}).setView([INFO.lat, INFO.lng], 17);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(peta);
+      L.circle([INFO.lat, INFO.lng],{radius:INFO.radius,color:'#32B23E',weight:2,fillOpacity:.15}).addTo(peta);
+      L.circleMarker([INFO.lat, INFO.lng],{radius:6,color:'#0F172A',fillColor:'#32B23E',fillOpacity:1,weight:2}).addTo(peta).bindTooltip(INFO.kantor);
+    } else {
+      setTimeout(function(){ peta.invalidateSize(); }, 200);
+    }
+  }
+  function ambilLokasi(){
+    var l = $('lencanaLokasi'); l.className = 'lencana'; l.textContent = 'Mencari lokasi…';
+    if (!navigator.geolocation) { l.textContent = 'GPS tidak didukung'; return; }
+    navigator.geolocation.getCurrentPosition(function(p){
+      POS = { lat:p.coords.latitude, lng:p.coords.longitude, akurasi:p.coords.accuracy };
+      var jarak = INFO ? haversine(INFO.lat, INFO.lng, POS.lat, POS.lng) : 0;
+      var dalam = INFO && jarak <= INFO.radius;
+      l.className = 'lencana ' + (dalam ? 'ok' : 'jauh');
+      l.textContent = (dalam ? 'Dalam radius' : 'Di luar radius') + ' · ' + Math.round(jarak) + ' m (±' + Math.round(POS.akurasi) + ' m)';
+      if (peta) {
+        var ll = [POS.lat, POS.lng];
+        if (!penanda) { penanda = L.circleMarker(ll,{radius:8,color:'#fff',weight:3,fillColor:'#2563EB',fillOpacity:1}).addTo(peta); akurasiLingkar = L.circle(ll,{radius:POS.akurasi,color:'#2563EB',weight:1,fillOpacity:.15}).addTo(peta); }
+        else { penanda.setLatLng(ll); akurasiLingkar.setLatLng(ll).setRadius(POS.akurasi); }
+        peta.fitBounds(L.latLngBounds([ll,[INFO.lat,INFO.lng]]).pad(.6),{maxZoom:18});
+      }
+      cekTombol();
+    }, function(err){
+      l.className = 'lencana jauh';
+      l.textContent = err.code === 1 ? 'Izin lokasi ditolak' : 'Lokasi gagal dibaca';
+    }, { enableHighAccuracy:true, timeout:20000, maximumAge:0 });
+  }
+  $('btnUlangLokasi').onclick = ambilLokasi;
+
+  // --- kamera ---
+  function mulaiStream(s){
+    stream = s;
+    var v = $('video');
+    v.srcObject = s;
+    v.onloadedmetadata = function(){
+      v.play();
+      v.hidden = false;
+      $('bingkai').hidden = false;
+      $('infoKamera').hidden = true;
+      $('aksiKamera').hidden = false;
+    };
+  }
+
+  $('btnKamera').onclick = function(){
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      fallbackKamera('Browser tidak mendukung streaming kamera.');
+      return;
+    }
+    $('infoKamera').innerHTML = 'Menghubungkan ke kamera…<br><br><span class="memuat"></span>';
+
+    // Coba 1: facingMode 'user' (optimal untuk HP)
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+      .then(mulaiStream)
+      .catch(function(err1){
+        // Coba 2: video: true murni tanpa constraint (standar webcam laptop/PC)
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+          .then(mulaiStream)
+          .catch(function(err2){
+            var err = err2 || err1;
+            var kode = err.name || 'Error';
+            var detail = err.message || '';
+            var pesan = 'Gagal mengakses webcam (' + kode + (detail ? ': ' + detail : '') + ').';
+            if (kode === 'NotReadableError' || kode === 'TrackStartError') {
+              pesan = 'Webcam terkunci atau dipakai aplikasi lain (Zoom/WA/Meet). Tekan Fn+F8 atau cek penutup webcam laptop.';
+            } else if (kode === 'NotAllowedError') {
+              pesan = 'Izin kamera ditolak oleh browser/sistem Windows.';
+            }
+            fallbackKamera(pesan);
+          });
+      });
+  };
+
+  function fallbackKamera(alasan){
+    $('infoKamera').innerHTML = alasan + '<br><br><button class="tombol" id="btnFallbackFoto" type="button" style="width:auto;padding:10px 18px">Ambil / Pilih Foto Langsung</button>';
+    $('btnFallbackFoto').onclick = function(){ $('inFotoFile').click(); };
+  }
+
+  $('btnPilihFoto').onclick = function(){ $('inFotoFile').click(); };
+
+  $('inFotoFile').onchange = function(){
+    var file = this.files && this.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var img = new Image();
+      img.onload = function(){
+        var c = $('kanvas');
+        var lebar = 480;
+        var tinggi = Math.round(lebar * (img.height / img.width || 4/3));
+        c.width = lebar; c.height = tinggi;
+        var x = c.getContext('2d');
+        x.drawImage(img, 0, 0, lebar, tinggi);
+        x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(0, tinggi-28, lebar, 28);
+        x.fillStyle = '#fff'; x.font = '14px sans-serif';
+        x.fillText(new Date().toLocaleString('id-ID') + (AKUN ? ' · ' + AKUN.id : ''), 10, tinggi-9);
+        FOTO = c.toDataURL('image/jpeg', .72);
+        $('foto').src = FOTO; $('foto').hidden = false;
+        $('video').hidden = true; $('bingkai').hidden = true;
+        $('infoKamera').hidden = true; $('aksiKamera').hidden = false;
+        $('btnFoto').disabled = true; $('btnUlangFoto').disabled = false;
+        cekTombol();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  $('btnFoto').onclick = function(){
+    var v = $('video'), c = $('kanvas'), lebar = 480, tinggi = Math.round(lebar * (v.videoHeight / v.videoWidth || 4/3));
+    c.width = lebar; c.height = tinggi;
+    var x = c.getContext('2d'); x.translate(lebar,0); x.scale(-1,1); x.drawImage(v,0,0,lebar,tinggi);
+    x.setTransform(1,0,0,1,0,0); x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(0,tinggi-28,lebar,28);
+    x.fillStyle = '#fff'; x.font = '14px sans-serif'; x.fillText(new Date().toLocaleString('id-ID') + (AKUN ? ' · ' + AKUN.id : ''), 10, tinggi-9);
+    FOTO = c.toDataURL('image/jpeg', .72);
+    $('foto').src = FOTO; $('foto').hidden = false; v.hidden = true; $('bingkai').hidden = true;
+    $('btnFoto').disabled = true; $('btnUlangFoto').disabled = false; cekTombol();
+  };
+  $('btnUlangFoto').onclick = function(){
+    FOTO = '';
+    $('foto').hidden = true;
+    $('inFotoFile').value = '';
+    if (stream) {
+      $('video').hidden = false; $('bingkai').hidden = false; $('btnFoto').disabled = false; $('btnUlangFoto').disabled = true;
+    } else {
+      $('infoKamera').hidden = false; $('aksiKamera').hidden = true;
+    }
+    cekTombol();
+  };
+
+  function cekTombol(){
+    var siap = POS && (!INFO || !INFO.wajibFoto || FOTO);
+    $('btnMasuk').disabled = !siap || HARI.indexOf('Masuk')>-1;
+    $('btnPulang').disabled = !siap || HARI.indexOf('Masuk')<0 || HARI.indexOf('Pulang')>-1;
+  }
+
+  function kirim(jenis){
+    var b = jenis === 'Masuk' ? $('btnMasuk') : $('btnPulang'), teks = b.textContent;
+    b.disabled = true; b.innerHTML = '<span class="memuat"></span>';
+    server('absen',[{ id:AKUN.id, pin:AKUN.pin, jenis:jenis, lat:POS.lat, lng:POS.lng, akurasi:POS.akurasi, foto:FOTO, perangkat:navigator.userAgent }])
+      .then(function(r){
+        if (!r.ok) return tampilHasil(false,'Belum bisa absen', r.pesan);
+        HARI.push(jenis); setStatus(HARI);
+        tampilHasil(true, jenis + ' tercatat ' + r.jam, r.nama + ' · ' + r.status + (r.telat ? ' (' + r.telat + ' menit)' : '') + ' · ' + r.jarak + ' m dari kantor');
+        if (stream) { stream.getTracks().forEach(function(t){ t.stop(); }); stream = null; }
+      })
+      .catch(function(e){ tampilHasil(false,'Gagal terhubung', e); })
+      .then(function(){ b.textContent = teks; cekTombol(); });
+  }
+  $('btnMasuk').onclick = function(){ kirim('Masuk'); };
+  $('btnPulang').onclick = function(){ kirim('Pulang'); };
+})();
+</script>
 </body>
 </html>

@@ -6,50 +6,69 @@
 <title>Demo Presensi GPS + Selfie</title>
 <!-- Demo statis: meniru tampilan index.html & admin.html dengan data contoh. Tidak terhubung ke server. -->
 <style>
-  :root{--navy:#0b1f3a;--navy-2:#132c50;--lime:#c6f432;--primary-red:#BA1D23;--primary-green:#32B23E;--merah:#ff5d5d;--teks:#e9eef7;--redup:#9fb0c9;--kartu:#10284a;--garis:#1f3c66}
+  :root{
+    --primary-red:#BA1D23;
+    --primary-yellow:#F9CE3B;
+    --accent-green:#32B23E;
+    --ink:#0F172A;
+    --slate:#334155;
+    --muted:#64748B;
+    --border:#E2E8F0;
+    --canvas:#F8FAFC;
+    --surface:#FFFFFF;
+    --info:#2563EB;
+    --warning:#D97706;
+    --danger:#DC2626;
+    --success:#16A34A;
+    --bg-app:var(--ink);
+    --bg-kartu:#1E293B;
+    --border-dark:var(--slate);
+    --teks:#F8FAFC;
+    --redup:#94A3B8;
+  }
   *{box-sizing:border-box}
-  body{margin:0;min-height:100vh;background:#06142a;color:var(--teks);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;align-items:center;justify-content:center;gap:28px;padding:24px;flex-wrap:wrap;
-    background-image:radial-gradient(circle at 15% 20%,rgba(198,244,50,.08),transparent 40%),radial-gradient(circle at 85% 80%,rgba(59,130,246,.12),transparent 45%)}
-  .hp{width:360px;height:740px;border-radius:44px;background:var(--navy);border:10px solid #1a2c47;box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden;position:relative;flex:none}
+  body{margin:0;min-height:100vh;background:#020617;color:var(--teks);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;align-items:center;justify-content:center;gap:28px;padding:24px;flex-wrap:wrap;
+    background-image:radial-gradient(circle at 15% 20%,rgba(50,178,62,.08),transparent 40%),radial-gradient(circle at 85% 80%,rgba(37,99,235,.12),transparent 45%)}
+  .hp{width:360px;height:740px;border-radius:44px;background:var(--bg-app);border:10px solid var(--slate);box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden;position:relative;flex:none}
   .hp-isi{padding:16px 14px;height:100%;overflow:hidden}
   .atas{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
   .logo{display:flex;align-items:center;gap:9px;font-weight:800}
   .logo i{width:30px;height:30px;border-radius:9px;background:var(--primary-red);display:grid;place-items:center;color:#fff;font-style:normal;font-weight:900}
   .jam{text-align:right}.jam b{display:block;font-size:19px;font-variant-numeric:tabular-nums}.jam small{color:var(--redup);font-size:11.5px}
-  .kartu{background:var(--kartu);border:1px solid var(--garis);border-radius:16px;padding:12px;margin-bottom:10px}
+  .kartu{background:var(--bg-kartu);border:1px solid var(--border-dark);border-radius:16px;padding:12px;margin-bottom:10px}
   .salam{display:flex;justify-content:space-between}.salam h2{margin:0;font-size:16px}.redup{color:var(--redup)}.kecil{font-size:12px}
-  .tautan{color:var(--primary-green);font-weight:700;font-size:12.5px}
+  .tautan{color:var(--accent-green);font-weight:700;font-size:12.5px}
   .status-hari{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-  .status-hari div{background:var(--navy);border-radius:10px;padding:7px 10px}.status-hari small{color:var(--redup);font-size:11px}.status-hari b{display:block;font-size:14px}
+  .status-hari div{background:var(--bg-app);border-radius:10px;padding:7px 10px}.status-hari small{color:var(--redup);font-size:11px}.status-hari b{display:block;font-size:14px}
   .peta{height:128px;border-radius:12px;overflow:hidden}
   .lokasi{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-  .lencana{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--navy);color:var(--primary-green)}
-  .lencana::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--primary-green)}
+  .lencana{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--bg-app);color:var(--accent-green)}
+  .lencana::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent-green)}
   .kamera{height:150px;border-radius:12px;overflow:hidden;position:relative}
   .kamera .stempel{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);font-size:11px;padding:4px 8px}
   .baris{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .tombol{padding:12px;border-radius:12px;font-weight:800;text-align:center;background:var(--primary-red);color:#ffffff}
   .tombol.mati{opacity:.4}
-  .tombol.garis{background:transparent;color:var(--teks);border:1px solid var(--garis);padding:9px;font-size:13px}
+  .tombol.garis{background:transparent;color:var(--teks);border:1px solid var(--border-dark);padding:9px;font-size:13px}
   /* admin */
-  .admin{width:720px;max-width:100%;background:#f3f5f9;color:#0f1b2d;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
-  .admin header{background:var(--primary-green);color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
-  .admin header .logo i{width:28px;height:28px;background:#fff;color:var(--primary-green)}
+  .admin{width:720px;max-width:100%;background:var(--canvas);color:var(--ink);border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+  .admin header{background:var(--accent-green);color:var(--surface);padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
+  .admin header .logo i{width:28px;height:28px;background:var(--surface);color:var(--accent-green)}
   .admin main{padding:16px 18px}
   .alat{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-  .seg{display:inline-flex;background:#fff;border:1px solid #e1e6ee;border-radius:9px;padding:3px}
-  .seg span{padding:5px 12px;border-radius:7px;font-weight:700;color:#5b6b82;font-size:13px}.seg span.on{background:var(--primary-green);color:#fff}
-  .inp,.btn{background:#fff;border:1px solid #e1e6ee;border-radius:9px;padding:6px 11px;font-size:13px;font-weight:600}
+  .seg{display:inline-flex;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:3px}
+  .seg span{padding:5px 12px;border-radius:7px;font-weight:700;color:var(--muted);font-size:13px}.seg span.on{background:var(--accent-green);color:var(--surface)}
+  .inp,.btn{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:6px 11px;font-size:13px;font-weight:600;color:var(--ink)}
   .angka{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
-  .angka div{background:#fff;border:1px solid #e1e6ee;border-radius:12px;padding:10px 12px}.angka small{color:#5b6b82;font-weight:600;font-size:12px}.angka b{display:block;font-size:22px}
-  .angka div:first-child{background:var(--primary-green);color:#fff;border-color:var(--primary-green)}.angka div:first-child small{color:#e6f9e8;font-weight:700}
-  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e1e6ee;border-radius:12px;overflow:hidden;font-size:13px}
-  th,td{padding:8px 11px;text-align:left;border-bottom:1px solid #e1e6ee}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#5b6b82;background:#fafbfd}
+  .angka div{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px}.angka small{color:var(--muted);font-weight:600;font-size:12px}.angka b{display:block;font-size:22px;color:var(--ink)}
+  .angka div:first-child{background:var(--accent-green);color:var(--surface);border-color:var(--accent-green)}.angka div:first-child b{color:var(--surface)}.angka div:first-child small{color:rgba(255,255,255,0.9);font-weight:700}
+  table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:13px}
+  th,td{padding:8px 11px;text-align:left;border-bottom:1px solid var(--border);color:var(--ink)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--canvas)}
   .st{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700}
-  .tepat{background:#e6f6ec;color:#2f855a}.telat{background:#fdf3e1;color:#b7791f}.absen{background:#fdeaea;color:#d93a3a}
+  .tepat{background:#DCFCE7;color:var(--success)}.telat{background:#FEF3C7;color:var(--warning)}.absen{background:#FEE2E2;color:var(--danger)}
   .foto{width:26px;height:26px;border-radius:7px;vertical-align:middle}
-  .label-demo{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:var(--lime);color:var(--navy);font-weight:800;font-size:12px;padding:5px 12px;border-radius:999px}
+  .label-demo{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:var(--primary-yellow);color:var(--ink);font-weight:800;font-size:12px;padding:5px 12px;border-radius:999px}
   .logo-img[hidden]{display:none}.logo-img{height:30px;max-width:110px;object-fit:contain;border-radius:8px}
 </style>
 </head>
@@ -68,20 +87,20 @@
       <g stroke="#1f3c66" stroke-width="10" fill="none"><path d="M-10 90 L330 60"/><path d="M90 -10 L120 140"/><path d="M230 -10 L210 140"/></g>
       <g stroke="#2a4c7d" stroke-width="2" fill="none"><path d="M-10 30 L330 20"/><path d="M40 -10 L30 140"/><path d="M280 -10 L300 140"/></g>
       <rect x="140" y="20" width="44" height="28" rx="3" fill="#1a355e"/><rect x="246" y="78" width="40" height="30" rx="3" fill="#1a355e"/><rect x="48" y="96" width="30" height="22" rx="3" fill="#1a355e"/>
-      <circle cx="165" cy="70" r="46" fill="rgba(198,244,50,.12)" stroke="#c6f432" stroke-width="2"/>
-      <circle cx="165" cy="70" r="6" fill="#c6f432" stroke="#0b1f3a" stroke-width="2"/>
-      <circle cx="184" cy="82" r="16" fill="rgba(59,130,246,.15)" stroke="#3b82f6"/>
-      <circle cx="184" cy="82" r="7" fill="#3b82f6" stroke="#fff" stroke-width="3"/>
+      <circle cx="165" cy="70" r="46" fill="rgba(50,178,62,.15)" stroke="#32B23E" stroke-width="2"/>
+      <circle cx="165" cy="70" r="6" fill="#32B23E" stroke="#0F172A" stroke-width="2"/>
+      <circle cx="184" cy="82" r="16" fill="rgba(37,99,235,.15)" stroke="#2563EB"/>
+      <circle cx="184" cy="82" r="7" fill="#2563EB" stroke="#fff" stroke-width="3"/>
     </svg>
     <div class="lokasi"><span class="lencana">Dalam radius · 24 m (±12 m)</span><span class="tautan">Perbarui</span></div>
   </div>
   <div class="kartu">
     <div class="kamera">
       <svg viewBox="0 0 300 190" width="100%" height="150" preserveAspectRatio="xMidYMid slice" aria-label="Contoh foto selfie (ilustrasi)">
-        <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2c4a72"/><stop offset="1" stop-color="#16294a"/></linearGradient></defs>
+        <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1E293B"/><stop offset="1" stop-color="#0F172A"/></linearGradient></defs>
         <rect width="300" height="190" fill="url(#bg)"/>
-        <rect x="20" y="20" width="60" height="90" rx="4" fill="#20406a"/><rect x="230" y="30" width="50" height="70" rx="4" fill="#20406a"/>
-        <path d="M80 190 C90 140 120 128 150 128 C180 128 210 140 220 190Z" fill="#c6f432"/>
+        <rect x="20" y="20" width="60" height="90" rx="4" fill="#334155"/><rect x="230" y="30" width="50" height="70" rx="4" fill="#334155"/>
+        <path d="M80 190 C90 140 120 128 150 128 C180 128 210 140 220 190Z" fill="#32B23E"/>
         <path d="M128 132 L150 156 L172 132" fill="#0b1f3a" opacity=".25"/>
         <rect x="140" y="110" width="20" height="24" fill="#d9a77a"/>
         <ellipse cx="150" cy="86" rx="32" ry="38" fill="#e8b98c"/>
